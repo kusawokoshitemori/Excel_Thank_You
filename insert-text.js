@@ -18,10 +18,10 @@ const jsonData = JSON.parse(args[0]); // 引数は JSON 形式の文字列とし
 
   // データを組み合わせてテキストを作成
   const textToInsert = `
-    Keyword Values: ${JSON.stringify(jsonData.keywordValues)}
-    Consignee Related Rows: ${JSON.stringify(jsonData.consigneeRelatedRows)}
-    Found Trade Words: ${JSON.stringify(jsonData.foundTradeWords)}
-    JPY Values: ${JSON.stringify(jsonData.jpyValues)}
+    次のセルに情報があるやつ達: ${JSON.stringify(jsonData.keywordValues)}
+    会社名+住所: ${JSON.stringify(jsonData.consigneeRelatedRows)}
+    貿易の方法: ${JSON.stringify(jsonData.foundTradeWords)}
+    値段: ${JSON.stringify(jsonData.jpyValues)}
   `;
 
   await page.waitForSelector(selector); // 入力フィールドが読み込まれるまで待機

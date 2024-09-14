@@ -33,7 +33,7 @@ console.log("Processed Data:", processedData); // 処理後のデータをコン
 
 // keyword の次の文字を抽出する関数
 function getValuesAfterKeywords(data, keywords) {
-  let results = {};
+  let results = [];
   keywords.forEach((keyword) => {
     for (let row of data) {
       for (let cell of row) {
@@ -41,21 +41,17 @@ function getValuesAfterKeywords(data, keywords) {
           // キーワードが見つかった場合、その次のセルの値を取得
           const index = row.indexOf(cell);
           if (index !== -1 && index + 1 < row.length) {
-            results[keyword] = row[index + 1];
+            results.push(row[index + 1]);
             break; // 一度見つかったら次のキーワードに進む
           }
         }
       }
-      if (results[keyword]) break; // キーワードが見つかったら次のキーワードに進む
-    }
-    if (!results[keyword]) {
-      results[keyword] = null; // キーワードが見つからない場合
     }
   });
   return results;
 }
 
-// Consigneeが含まれる行の次にある3行の情報を取得する関数
+// Consigneeが含まれる行の次にある3行の情報を取得し、会社名とそれ以外に分ける関数
 function getThreeRowsAfterConsignee(data) {
   let consigneeRowIndex = -1;
 
@@ -69,7 +65,14 @@ function getThreeRowsAfterConsignee(data) {
 
   // Consigneeの次にある3行を取得
   if (consigneeRowIndex !== -1 && consigneeRowIndex + 1 < data.length) {
-    return data.slice(consigneeRowIndex + 1, consigneeRowIndex + 4);
+    const rows = data.slice(consigneeRowIndex + 1, consigneeRowIndex + 4);
+
+    // 会社名とそれ以外のデータに分ける
+    const companyName = rows[0] ? rows[0].join("") : ""; // 最初の行（会社名）
+    const otherRows = rows.slice(1); // 残りの行
+    const otherInfo = otherRows.map((row) => row.join("")).join(""); // 残りの行を結合
+
+    return [companyName, otherInfo]; // 会社名とそれ以外を別々の要素として返す
   } else {
     return []; // Consigneeが見つからない、または次に行がない場合
   }
