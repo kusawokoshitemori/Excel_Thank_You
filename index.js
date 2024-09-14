@@ -54,12 +54,82 @@ function getValuesAfterKeywords(data, keywords) {
   return results;
 }
 
+// Consigneeが含まれる行の次にある3行の情報を取得する関数
+function getThreeRowsAfterConsignee(data) {
+  let consigneeRowIndex = -1;
+
+  // Consigneeが含まれる行を見つける
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].some((cell) => cell && cell.includes("Consignee"))) {
+      consigneeRowIndex = i;
+      break;
+    }
+  }
+
+  // Consigneeの次にある3行を取得
+  if (consigneeRowIndex !== -1 && consigneeRowIndex + 1 < data.length) {
+    return data.slice(consigneeRowIndex + 1, consigneeRowIndex + 4);
+  } else {
+    return []; // Consigneeが見つからない、または次に行がない場合
+  }
+}
+
+// エクセルのデータから trade_words の中にある単語を探し、見つかったら表示する関数
+function findAndLogTradeWords(data, tradeWords) {
+  data.forEach((row) => {
+    row.forEach((cell) => {
+      tradeWords.forEach((word) => {
+        if (typeof cell === "string" && cell.includes(word)) {
+          console.log(`Found trade word: ${word}`);
+        }
+      });
+    });
+  });
+}
+
+// 使用する貿易用語のリスト
+const trade_words = ["FOB", "CIF", "EXY", "FCA", "DAP", "DDP"];
+
+// "JPY"の次の数値を抽出する関数
+function getJPYValueFromCell(cell) {
+  const jpyPattern = /JPY\s*([0-9,]+)/; // "JPY"に続く数値を正規表現で抽出
+  const match = cell.match(jpyPattern);
+  if (match && match[1]) {
+    // マッチした場合、その値を返す
+    return match[1].replace(/,/g, ""); // カンマを取り除いて数値を返す
+  }
+  return null; // マッチしない場合はnullを返す
+}
+
+// エクセルのデータを走査し、"JPY"の次の数値を見つける関数
+function findJPYValues(data) {
+  data.forEach((row) => {
+    row.forEach((cell) => {
+      if (typeof cell === "string" && cell.includes("JPY")) {
+        const jpyValue = getJPYValueFromCell(cell);
+        if (jpyValue) {
+          console.log(`Found JPY value: ${jpyValue}`);
+        }
+      }
+    });
+  });
+}
+
 // 複数のキーワードをリストとしてまとめる
 const keywords = ["ShippedPer", "From", "To", "On or About", "Date", "No"];
 
 // 各キーワードの次の文字を取得
 const keywordValues = getValuesAfterKeywords(processedData, keywords);
 console.log("Values after keywords:", keywordValues);
+
+const consigneeRelatedRows = getThreeRowsAfterConsignee(processedData);
+console.log("Rows after Consignee:", consigneeRelatedRows);
+
+// trade_words を探して表示する
+findAndLogTradeWords(processedData, trade_words);
+
+// エクセルシートデータからJPYの次の値を探す
+findJPYValues(processedData);
 
 // 静的ファイルの提供
 app.use(express.static(path.join(__dirname, "public")));
