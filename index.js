@@ -76,19 +76,19 @@ function getThreeRowsAfterConsignee(data) {
 
 // エクセルのデータから trade_words の中にある単語を探し、見つかったら表示する関数
 function findAndLogTradeWords(data, tradeWords) {
+  let foundWords = [];
   data.forEach((row) => {
     row.forEach((cell) => {
       tradeWords.forEach((word) => {
         if (typeof cell === "string" && cell.includes(word)) {
           console.log(`Found trade word: ${word}`);
+          foundWords.push(word);
         }
       });
     });
   });
+  return foundWords;
 }
-
-// 使用する貿易用語のリスト
-const trade_words = ["FOB", "CIF", "EXY", "FCA", "DAP", "DDP"];
 
 // "JPY"の次の数値を抽出する関数
 function getJPYValueFromCell(cell) {
@@ -103,16 +103,19 @@ function getJPYValueFromCell(cell) {
 
 // エクセルのデータを走査し、"JPY"の次の数値を見つける関数
 function findJPYValues(data) {
+  let jpyValues = [];
   data.forEach((row) => {
     row.forEach((cell) => {
       if (typeof cell === "string" && cell.includes("JPY")) {
         const jpyValue = getJPYValueFromCell(cell);
         if (jpyValue) {
           console.log(`Found JPY value: ${jpyValue}`);
+          jpyValues.push(jpyValue);
         }
       }
     });
   });
+  return jpyValues;
 }
 
 // 複数のキーワードをリストとしてまとめる
@@ -126,18 +129,32 @@ const consigneeRelatedRows = getThreeRowsAfterConsignee(processedData);
 console.log("Rows after Consignee:", consigneeRelatedRows);
 
 // trade_words を探して表示する
-findAndLogTradeWords(processedData, trade_words);
+// 使用する貿易用語のリスト
+const trade_words = ["FOB", "CIF", "EXY", "FCA", "DAP", "DDP"];
+const foundTradeWords = findAndLogTradeWords(processedData, trade_words);
 
 // エクセルシートデータからJPYの次の値を探す
-findJPYValues(processedData);
+const jpyValues = findJPYValues(processedData);
+
+//appエンドポイントの追加
+app.get("/keyword-values", (req, res) => {
+  res.json(keywordValues);
+});
+
+app.get("/consignee-rows", (req, res) => {
+  res.json(consigneeRelatedRows);
+});
+
+app.get("/trade-words", (req, res) => {
+  res.json(foundTradeWords);
+});
+
+app.get("/jpy-values", (req, res) => {
+  res.json(jpyValues);
+});
 
 // 静的ファイルの提供
 app.use(express.static(path.join(__dirname, "public")));
-
-// データを取得するエンドポイント
-app.get("/data", (req, res) => {
-  res.json(processedData);
-});
 
 // HTMLページを表示するルート
 app.get("/", (req, res) => {

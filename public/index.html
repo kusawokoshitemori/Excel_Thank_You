@@ -4,66 +4,81 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Excel Data</title>
-    <style>
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      table,
-      th,
-      td {
-        border: 1px solid black;
-      }
-      th,
-      td {
-        padding: 8px;
-        text-align: left;
-      }
-      th {
-        background-color: #f2f2f2;
-      }
-    </style>
   </head>
   <body>
-    <h1>Excel Data</h1>
-    <table id="data-table">
-      <!-- Table content will be injected here -->
-    </table>
+    <h1>次のセルに情報があるやつ達</h1>
+    <div id="keyword-values"></div>
+
+    <h1>会社名+住所</h1>
+    <div id="consignee-rows"></div>
+
+    <h1>貿易の方法</h1>
+    <div id="trade-words"></div>
+
+    <h1>値段</h1>
+    <div id="jpy-values"></div>
+
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        fetch("/data")
-          .then((response) => response.json())
-          .then((data) => {
-            const table = document.getElementById("data-table");
-            const tableHeader = document.createElement("thead");
-            const tableBody = document.createElement("tbody");
+      fetch("/keyword-values")
+        .then((response) => response.json())
+        .then((data) => {
+          const keywordValuesDiv = document.getElementById("keyword-values");
+          let htmlContent = "<ul>";
+          for (const [key, value] of Object.entries(data)) {
+            htmlContent += `<li><strong>${key}:</strong> ${value}</li>`;
+          }
+          htmlContent += "</ul>";
+          keywordValuesDiv.innerHTML = htmlContent;
+        })
+        .catch((error) =>
+          console.error("Error fetching keyword values:", error)
+        );
 
-            // テーブルのヘッダーを作成
-            const headerRow = document.createElement("tr");
-            const keys = Object.keys(data[0]);
-            keys.forEach((key) => {
-              const th = document.createElement("th");
-              th.textContent = key;
-              headerRow.appendChild(th);
-            });
-            tableHeader.appendChild(headerRow);
+      fetch("/consignee-rows")
+        .then((response) => response.json())
+        .then((data) => {
+          const consigneeRowsDiv = document.getElementById("consignee-rows");
+          let htmlContent = "<ul>";
 
-            // テーブルのボディを作成
-            data.forEach((row) => {
-              const tr = document.createElement("tr");
-              keys.forEach((key) => {
-                const td = document.createElement("td");
-                td.textContent = row[key];
-                tr.appendChild(td);
-              });
-              tableBody.appendChild(tr);
-            });
+          htmlContent += "<li>" + data[0][0] + "</li>"; // 1行目 (会社名)
+          // 2行目以降をすべて結合
+          const combinedAddress = data
+            .slice(1)
+            .map((row) => row[0])
+            .join(" ");
+          htmlContent += "<li>" + combinedAddress + "</li>"; // 住所全体を結合して表示
+          htmlContent += "</ul>";
+          consigneeRowsDiv.innerHTML = htmlContent;
+        })
+        .catch((error) =>
+          console.error("Error fetching consignee rows:", error)
+        );
 
-            table.appendChild(tableHeader);
-            table.appendChild(tableBody);
-          })
-          .catch((error) => console.error("Error fetching data:", error));
-      });
+      fetch("/trade-words")
+        .then((response) => response.json())
+        .then((data) => {
+          const tradeWordsDiv = document.getElementById("trade-words");
+          let htmlContent = "<ul>";
+          data.forEach((word) => {
+            htmlContent += `<li>${word}</li>`;
+          });
+          htmlContent += "</ul>";
+          tradeWordsDiv.innerHTML = htmlContent;
+        })
+        .catch((error) => console.error("Error fetching trade words:", error));
+
+      fetch("/jpy-values")
+        .then((response) => response.json())
+        .then((data) => {
+          const jpyValuesDiv = document.getElementById("jpy-values");
+          let htmlContent = "<ul>";
+          data.forEach((value) => {
+            htmlContent += `<li>${value}</li>`;
+          });
+          htmlContent += "</ul>";
+          jpyValuesDiv.innerHTML = htmlContent;
+        })
+        .catch((error) => console.error("Error fetching JPY values:", error));
     </script>
   </body>
 </html>
