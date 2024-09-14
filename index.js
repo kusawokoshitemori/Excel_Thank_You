@@ -162,9 +162,17 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// "Hello World"を入力するエンドポイント
+// inser-test.jsにつなげる(変数持っていく)
 app.get("/run-puppeteer", (req, res) => {
-  exec("node insert-text.js", (error, stdout, stderr) => {
+  // データを JSON 文字列としてコマンドライン引数に渡す
+  const data = JSON.stringify({
+    keywordValues,
+    consigneeRelatedRows,
+    foundTradeWords,
+    jpyValues,
+  }).replace(/"/g, '\\"'); // ダブルクオートをエスケープする
+
+  exec(`node insert-text.js "${data}"`, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing script: ${error.message}`);
       return res.status(500).send("Error running Puppeteer script");
@@ -179,5 +187,5 @@ app.get("/run-puppeteer", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}/run-puppeteer`);
 });

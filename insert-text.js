@@ -1,5 +1,9 @@
 const puppeteer = require("puppeteer");
 
+// コマンドライン引数からデータを取得
+const args = process.argv.slice(2);
+const jsonData = JSON.parse(args[0]); // 引数は JSON 形式の文字列として受け取る
+
 (async () => {
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
@@ -12,7 +16,13 @@ const puppeteer = require("puppeteer");
   // 最初の <textarea> 要素を選択
   const selector = "textarea:first-of-type";
 
-  const textToInsert = "お肉冷蔵庫に入れるの忘れてた"; // 挿入するテキスト
+  // データを組み合わせてテキストを作成
+  const textToInsert = `
+    Keyword Values: ${JSON.stringify(jsonData.keywordValues)}
+    Consignee Related Rows: ${JSON.stringify(jsonData.consigneeRelatedRows)}
+    Found Trade Words: ${JSON.stringify(jsonData.foundTradeWords)}
+    JPY Values: ${JSON.stringify(jsonData.jpyValues)}
+  `;
 
   await page.waitForSelector(selector); // 入力フィールドが読み込まれるまで待機
   await page.click(selector); // 入力フィールドをクリックしてフォーカスを当てる
