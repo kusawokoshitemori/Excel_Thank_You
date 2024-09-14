@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "express": "^4.20.0",
+    "puppeteer": "^23.3.0",
     "xlsx": "^0.18.5"
   }
 }

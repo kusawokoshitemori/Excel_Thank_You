@@ -1,6 +1,7 @@
 const express = require("express");
 const XLSX = require("xlsx");
 const path = require("path");
+const { exec } = require("child_process");
 
 const app = express();
 const port = 3000;
@@ -159,6 +160,22 @@ app.use(express.static(path.join(__dirname, "public")));
 // HTMLページを表示するルート
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// "Hello World"を入力するエンドポイント
+app.get("/run-puppeteer", (req, res) => {
+  exec("node insert-text.js", (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing script: ${error.message}`);
+      return res.status(500).send("Error running Puppeteer script");
+    }
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+      return res.status(500).send("Script error");
+    }
+    console.log(`stdout: ${stdout}`);
+    res.send("Puppeteer script executed successfully");
+  });
 });
 
 app.listen(port, () => {
